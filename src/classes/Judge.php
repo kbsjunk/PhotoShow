@@ -150,7 +150,7 @@ class Judge
 				$this->users[]=(string)$u;
 
 		}catch(Exception $e){
-		
+
 			/// If no rights file found, check in the containing directory
 			try{
 				// Look up
@@ -194,26 +194,25 @@ class Judge
 		$rightsfiles=glob($rightsdir."/.*ights.xml");
 
 		// Check files
-		if(!isset($rightsfiles) || count($rightsfiles) < 1 ){
-			$rightsfiles = NULL;
-		}
+		if(!isset($rightsfiles) && count($rightsfiles) > 0 ){
 
-		foreach($rightsfiles as $rf){
-			$f = Judge::associated_file($rf);
-            if(($public_search and Judge::is_public($f))
-                or (!$public_search and Judge::view($f))){
-                    if(is_file($f)){
-                        return $f;
-                    }else{
-                        foreach(Menu::list_files($f,true) as $p){
-                            if(($public_search and Judge::is_public($p))
-                                or (!$public_search and Judge::view($p))){
-                                    return $p;
-                                }
-                        }
-                    }
-                }
-        }
+		// if (is_array($rightsfiles)) {
+			foreach($rightsfiles as $rf){
+				$f = Judge::associated_file($rf);
+				if(($public_search and Judge::is_public($f))
+					or (!$public_search and Judge::view($f))){
+					if(is_file($f)){
+						return $f;
+					}else{
+						foreach(Menu::list_files($f,true) as $p){
+							if(($public_search and Judge::is_public($p))
+								or (!$public_search and Judge::view($p))){
+								return $p;
+						}
+					}
+				}
+			}
+		}
 
 		// Check subdirs
 		foreach(Menu::list_dirs($dir) as $d){
@@ -221,9 +220,10 @@ class Judge
 				return $f;
 			}
 		}
-
-		return false;
 	}
+
+	return false;
+}
 
 	/**
 	 * Save our judge for this file as an xml file
@@ -345,25 +345,25 @@ class Judge
 			return true;
 		}
 
-        if (isset(CurrentUser::$account)){
+		if (isset(CurrentUser::$account)){
             // User allowed
-            if(in_array(CurrentUser::$account->login,$judge->users)){
-                return true;
-            }
+			if(in_array(CurrentUser::$account->login,$judge->users)){
+				return true;
+			}
 
             // User in allowed group
-            foreach(CurrentUser::$account->groups as $group){
-                if(in_array($group,$judge->groups)){
-                    return true;
-                }
-            }
-        }
-        if (isset(CurrentUser::$token)){
-            if (GuestToken::view(CurrentUser::$token,$f)){
-                return true;
-            }
-        }
-        
+			foreach(CurrentUser::$account->groups as $group){
+				if(in_array($group,$judge->groups)){
+					return true;
+				}
+			}
+		}
+		if (isset(CurrentUser::$token)){
+			if (GuestToken::view(CurrentUser::$token,$f)){
+				return true;
+			}
+		}
+
 		return false;
 	}
 
@@ -374,10 +374,10 @@ class Judge
 	 * @return bool
 	 * @author Franck Royer
 	 */
-    public static function is_public($f){
-        $judge	=	new Judge($f);
-        return($judge->public);
-    }
+	public static function is_public($f){
+		$judge	=	new Judge($f);
+		return($judge->public);
+	}
 
 	/**
 	 * Display the rights on website, and let
@@ -410,9 +410,9 @@ class Judge
 				echo "</form>";
 			}
 		}else{
-				echo "<form action='?t=Pub$this->webpath' method='post'>\n";
-				echo "<fieldset><input type='submit' class='button blue' value='"."Set those items as Public"."' /></fieldset>";
-				echo "</form>";
+			echo "<form action='?t=Pub$this->webpath' method='post'>\n";
+			echo "<fieldset><input type='submit' class='button blue' value='"."Set those items as Public"."' /></fieldset>";
+			echo "</form>";
 		}
 
 		echo "<form action='?t=Rig$this->webpath' method='post'>\n";
@@ -446,24 +446,24 @@ class Judge
 
 		echo "<fieldset><input type='submit' class='button blue' value='".Settings::_("judge","set")."'></fieldset>\n";
 		echo "</form>\n";
-        
-        if(!$this->multi){
+
+		if(!$this->multi){
 	        // Token creation
-	        echo "<h2>".Settings::_("token","tokens")."</h2>\n";
-	        $tokens = GuestToken::find_for_path($this->file);
-	        if ($tokens && !empty($tokens)){
-	            foreach($tokens as $token){
-	                echo "<a href='".GuestToken::get_url($token['key'])."' >".$token['key']."<\a><br />\n";
-	            }
-	        }
-	        echo "<form action='?t=CTk$this->webpath' method='post'>\n";
-	        echo "<fieldset><input type='submit' class='button blue' value='".Settings::_("token","createtoken")."' /></fieldset>";
-	        echo "</form>";
+			echo "<h2>".Settings::_("token","tokens")."</h2>\n";
+			$tokens = GuestToken::find_for_path($this->file);
+			if ($tokens && !empty($tokens)){
+				foreach($tokens as $token){
+					echo "<a href='".GuestToken::get_url($token['key'])."' >".$token['key']."<\a><br />\n";
+				}
+			}
+			echo "<form action='?t=CTk$this->webpath' method='post'>\n";
+			echo "<fieldset><input type='submit' class='button blue' value='".Settings::_("token","createtoken")."' /></fieldset>";
+			echo "</form>";
 			echo "</div>";
 		}
 
-        echo "</div>\n";
-    }
+		echo "</div>\n";
+	}
 
 
 }
